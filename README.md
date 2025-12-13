@@ -11,8 +11,9 @@ Yaml code for MQ135 sensor with auto calibration function<br/>
 8. If you move another new apartment, city, country etc must re-calibrate.<br/> 
 9. DHT11 sensor for Humidity & Temperature. You can easly change different sensor type.<br/>
 
-MQ135 sensor supply voltage 5V , GPIO Pin GPIO4
-DHT11 sensor supply voltage 3.3V , GPIO Pin GPIO0
+ESP32 C6 used<br/>
+MQ135 sensor supply voltage 5V , GPIO Pin GPIO4<br/>
+DHT11 sensor supply voltage 3.3V , GPIO Pin GPIO0<br/>
 
 
 # esphome-mq135-auto-calibrate
@@ -27,5 +28,6 @@ MQ135 sensörü ile hava kalitesi ölçümü, otomatik kalibrasyon özellikli <b
 7. Başka bir eve, semte, ya da şehir veya ülkeye giderseniz tekrar kalibre etmelisiniz.<br/>
 8. Sıcaklık ve nem için DHT11 sensörü kullanılmıştır. Başka sensörle kolayca değiştirebilirsiniz.<br/>
 
-MQ135 sensorü besleme voltajı 5V , GPIO Pin GPIO4
-DHT11 sensorü besleme voltajı 3.3V , GPIO Pin GPIO0
+ESP32 C6 kullanılmıştır<br/>
+MQ135 sensorü besleme voltajı 5V , GPIO Pin GPIO4<br/>
+DHT11 sensorü besleme voltajı 3.3V , GPIO Pin GPIO0<br/>
