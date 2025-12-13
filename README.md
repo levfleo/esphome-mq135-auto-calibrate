@@ -1,7 +1,7 @@
 # esphome-mq135-auto-calibrate
 Yaml code for MQ135 sensor with auto calibration function<br/>
 
-1. Compile YAML , Publish bin tor ESP32 C6, and visit ESP32's web site, and wait at least 15 minutes<br/>
+1. Compile YAML , Publish bin to ESP32 C6, and visit ESP32's web site, and wait at least 15 minutes<br/>
 2. Obtain the 'RZERO reading' and 'PPM CO2 reading' values on the street, yard or outside not in other room in your house, at least 1-2 hours<br/>
 3. If the values above are stable, then press button named 'Calibrate Sensor' and wait until 'CO₂ level' value are stable<br/>
 4. Move esp32 to living room. CO₂ level values displays relativly Air Quality from outside air quailty to living rooms values.<br/>
