@@ -1,7 +1,6 @@
- 
 esphome:
-  name: mq13-air-quality
-
+  name: "mq135-air-quality"
+ 
 esp32:
   board: esp32-c6-devkitc-1
   framework:
@@ -12,14 +11,11 @@ wifi:
   power_save_mode: NONE
   fast_connect: True
   networks:
-     manual_ip: 
-       static_ip: 192.168.1.26
-       gateway: 192.168.1.1
-       dns1: 192.168.1.1
-       subnet: 255.255.255.0
+  - ssid: !secret wifi_ssid
+    password: !secret wifi_password    
   ap:
  
-  
+      
 logger:
  
 web_server:
@@ -28,41 +24,25 @@ web_server:
   port: 80
   include_internal: False
   version: 3
-  id: webserver_kullanici
+  id: webserver_sort
   sorting_groups:
-    - id: bilgiler_grup
-      name: "Ortamdaki Yaşam Verileri"
+    - id: info_group
+      name: "Environmental Life Data"
       sorting_weight: 10
-    - id: kritik_grup
-      name: "Kritik işler"
+    - id: critic_group
+      name: "Critical works"
       sorting_weight: 60    
   
 api:
- 
 
 ota:
   - platform: esphome
-    password: "XXXXXXXX-XXXXX-XXXXXXX"
- 
+    password: "xxxXXXxxx"
 
 captive_portal:
 
 globals:
-  - id: makina_esp_anahtari
-    type: std::string
-    restore_value: yes
-    max_restore_data_length: 31
-    initial_value: '"xxxXXXxxxXXXXxxxxXXXxxxXXXX="'  # DEĞİŞTİRLECEK 3.
 
-  - id: makina_ismi
-    type: std::string
-    restore_value: yes
-    max_restore_data_length: 31
-    initial_value: '"${isim}"'
- 
- 
-# this repo froked link below
-# https://github.com/AlexBelfegor/esphome-mq135/blob/main/isl_climatestatio.yaml
 #The load resistance on the board. Value in KiloOhms
   - id: RLOAD
     type: float
@@ -133,293 +113,47 @@ globals:
     initial_value: '1'
 
 
+
+
 light: 
-  
-  # ONBOARD RGB LED BU
-  - platform: esp32_rmt_led_strip
-    rgb_order:  RGB #GBR
-    internal: True
-    pin:
-      number: 8
-      ignore_strapping_warning: true
-    num_leds: 1
-    chipset: WS2812 
-    id: status_led_renkli
-    name: "Led Işık"
-    icon: "mdi:led-outline"
-    default_transition_length: 0.25s
-    # disabled_by_default: True
-    # initial_state: 
-    #   brightness: 10%
-    #   color_brightness: 10%
-    #   red: 10%
-    effects:
-      - pulse:
-          name: "Acilis"
-          transition_length: 0.7s
-          update_interval: 0.7s
-          min_brightness: 10%
-          max_brightness: 20%  
-      - pulse:
-          name: "FastPulse"
-          transition_length: 0.1s
-          update_interval: 0.1s
-          min_brightness: 10%
-          max_brightness: 100%
-      - pulse:
-          name: "SlowPulse"
-          transition_length: 1.5s
-          update_interval: 1.5s
-          min_brightness: 10%
-          max_brightness: 50%          
-    web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: ayarlar_grup   
-        sorting_weight: 70   
-  
-
-
-  # ON-BOARD LED MAVİ  
-  - platform: status_led 
-    pin:
-      number: GPIO15
-      ignore_strapping_warning: true
-    id: led_status_light
-    restore_mode: ALWAYS_ON
-    internal: true
-    effects:
-    - strobe:
-        name: "Slow Blink"  
-        colors:
-          - state: true
-            duration: 1ms
-          - state: false
-            duration: 5s
-    on_turn_on:
-      - light.turn_on:
-          id: led_status_light
-          effect: "Slow Blink"
 
 
 
 button:
-
-     
-
   - platform: template
-    id: kalibre_et
-    name: "Kalibre et"
+    id: calibration
+    name: "Calibrate Sensor"
     icon: mdi:lock-reset
-    on_press:   #debug
+    on_press:   
       then:
          - lambda: |-
             id(RZERO) = id(corrected_r_zero).state;
             id(ATMOCO2) = id(ppm_co2).state; 
-
-
     entity_category: config
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: kritik_grup   
+        web_server_id: webserver_sort
+        sorting_group_id: critic_group   
         sorting_weight: 77   
 
 
   - platform: restart
-    name: "Sistemi baştan başlat"
+    name: "System restart"
     entity_category: config
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: kritik_grup   
+        web_server_id: webserver_sort
+        sorting_group_id: critic_group   
         sorting_weight: 60     
 
   - platform: factory_reset
-    name: "Fabrika ayarlarına dön"
+    name: "Return to Factory settings"
     entity_category: config
     web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: kritik_grup    
+      web_server_id: webserver_sort
+      sorting_group_id: critic_group    
       sorting_weight: 61     
 
 
-output:
-  - platform: ledc
-    pin: 
-      number: GPIO14
-      # ignore_strapping_warning: True
-    id: buzzer
-    
-
-rtttl: # https://esphome.io/components/rtttl/
-  output: buzzer
-  id: my_rtttl
-  on_finished_playback:
-    - logger.log: 'Song ended!'
-    # - output.turn_off: buzzer
-  gain: 0.02
-
 switch:
-  - platform: output
-    output: buzzer
-    name: "Sesli Uyarı"
-    id: buzzer_function
-    internal: False  #ŞİMDİLİK KAPATTK BUZZ AÇILIŞINCA AÇILACAK
-    entity_category: CONFIG
-    icon: mdi:bell-ring-outline
-    restore_mode: RESTORE_DEFAULT_ON
- 
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: dugme_grup
-      sorting_weight: 60
-    on_turn_on: 
-      then:
-        - rtttl.play: "success:d=24,o=5,b=100:c,g,b"
-        # - rtttl.play: 'two_short:d=4,o=5,b=100:16e6,16e6'
-        # - delay: 500ms
-        - if:
-            condition:
-              switch.is_off: isikli_alarm
-            then:
-                - switch.control:
-                    id: isikli_alarm
-                    state: true
-
-        - logger.log: 
-              format: "Sesli uyarılar devrede"
-              level: INFO
-              tag: "ayarlar"
-    on_turn_off: 
-      then:
-        - logger.log: 
-              format: "Sesli uyarılar devre dışı"
-              level: INFO
-              tag: "ayarlar"
-  
-
-  - platform: template
-    name: "Işıklı Uyarı"
-    entity_category: CONFIG
-    icon: mdi:alarm-light-outline
-    id: isikli_alarm
-    optimistic: True
-    restore_mode: RESTORE_DEFAULT_ON
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: dugme_grup
-      sorting_weight: 61
-    turn_on_action:
-        then:
-          - logger.log: 
-                format: "Işıklı uyarılar devrede"
-                level: INFO
-                tag: "ayarlar"
-
-          - light.turn_on: status_led_renkli
-          - light.turn_off: led_status_light
-                
-    turn_off_action:
-        - logger.log:
-            format: "Işıklı uyarılar devre dışı"
-            level: INFO
-            tag: "ayarlar" 
-        - light.turn_off: status_led_renkli
-        - light.turn_on: led_status_light
-     
-
-  # - platform: template
-  #   name: "CO₂ Seviyesi Uyarı"
-  #   entity_category: CONFIG
-  #   icon: mdi:molecule-co2
-  #   id: co_alarm
-  #   optimistic: True
-  #   assumed_state: True
-  #   restore_mode: RESTORE_DEFAULT_ON
-  #   web_server: 
-  #     web_server_id: webserver_kullanici
-  #     sorting_group_id: dugme_grup
-  #     sorting_weight: 62
-  #   turn_on_action:
-  #       then:
-  #         - if:
-  #             condition:
-  #               switch.is_off: isikli_alarm
-  #             then:
-  #               - switch.control:
-  #                   id: isikli_alarm
-  #                   state: true
-
-  #         - logger.log:
-  #               format: "CO₂ Seviyesi uyarıları devrede"
-  #               level: INFO
-  #               tag: "ayarlar"
-
-  #   turn_off_action:
-  #       then:
-  #         - if:
-  #             condition:
-  #               switch.is_off: duman_alarm
-  #             then:
-  #               - switch.control:
-  #                   id: isikli_alarm
-  #                   state: false
-
-
-  #         - logger.log:
-  #             format: "CO₂ Seviyesi uyarıları devre dışı"
-  #             level: INFO
-  #             tag: "ayarlar"
-        
-
-  # - platform: template
-  #   name: "Duman/Toz Seviyesi Uyarı"
-  #   entity_category: CONFIG
-  #   icon: mdi:smoke
-  #   id: duman_alarm
-  #   optimistic: True
-  #   assumed_state: True
-  #   restore_mode: RESTORE_DEFAULT_ON
-  #   web_server: 
-  #     web_server_id: webserver_kullanici
-  #     sorting_group_id: dugme_grup
-  #     sorting_weight: 63
-  #   turn_on_action:
-  #       then:
-  #         - if:
-  #             condition:
-  #               switch.is_off: isikli_alarm
-  #             then:
-  #               - switch.control:
-  #                   id: isikli_alarm
-  #                   state: true
-  #         - logger.log: 
-  #               format: "Duman/Toz Seviyesi uyarıları devrede"
-  #               level: INFO
-  #               tag: "ayarlar"
-
-  #   turn_off_action:
-
-  #       then:
-  #         - if:
-  #             condition:
-  #               switch.is_off: co_alarm
-  #             then:
-  #               - switch.control:
-  #                   id: isikli_alarm
-  #                   state: false
-  #         - logger.log: 
-  #             format: "Duman/Toz Seviyesi uyarıları devre dışı"
-  #             level: INFO
-  #             tag: "ayarlar"
-
- 
-
-i2c: # bmp180 için bu gerekli SİLME SAKIN
-  sda: GPIO01
-  scl: GPIO02
-  scan: False
-  id: i_kare_c
-
-
 
 sensor:
  
@@ -429,173 +163,79 @@ sensor:
     id: acilistan_gecen_sure_seconds
     internal: True
 
-  # https://community.home-assistant.io/t/natural-gas-leak-air-quality-sensor-esphome-and-mq2-sensor/589533/6
-  # https://wiki.seeedstudio.com/Grove-Gas_Sensor-MQ2/
-  # https://esphome.io/components/sensor/adc/
-
-  - platform: adc # MQ2 BU
-    pin: GPIO03
-    id: duman_sensoru
-    name: "Duman/Toz Seviyesi"
-    # update_interval: 15s
-    accuracy_decimals: 0
-    # filters: 
-    #   - lambda : return x * 100;
-    filters:
-      - multiply: 100 
-    unit_of_measurement: "%"
-    icon: mdi:smoke
-    web_server: 
-          web_server_id: webserver_kullanici
-          sorting_group_id: bilgiler_grup
-          sorting_weight: 33    
-
-
   - platform: template
-    name: "Sıcaklık"
+    name: "Temperature"
     lambda: |-
-      return (id(bmp_temp).state + id(sicak).state)/2;
+      return  (id(temp).state);
     unit_of_measurement: "°C"
     accuracy_decimals: 0  
-    id: sicaklik_ort
+    id: temp_ort
     device_class: temperature
     icon: mdi:home-thermometer-outline
     web_server: 
-          web_server_id: webserver_kullanici
-          sorting_group_id: bilgiler_grup
+          web_server_id: webserver_sort
+          sorting_group_id: info_group
           sorting_weight: 16    
-       
-
-  - platform: bmp085
-    id: bmp_sensoru
-    temperature:
-      name: "Sıcaklık BMP"
-      device_class: temperature
-      accuracy_decimals: 0  
-      internal: True
-      id: bmp_temp
-      icon: mdi:home-thermometer-outline
-      web_server: 
-          web_server_id: webserver_kullanici
-          sorting_group_id: bilgiler_grup
-          sorting_weight: 30    
-    pressure:
-      name: "Hava Basıncı"
-      icon: mdi:gauge # mdi:cloud-arrow-down-outline
-      device_class: atmospheric_pressure
-      accuracy_decimals: 0
-      id: hava_basinci
-      web_server: 
-          web_server_id: webserver_kullanici
-          sorting_group_id: bilgiler_grup
-          sorting_weight: 31    
-    i2c_id: i_kare_c
-
-
-  - platform: template
-    name: "Deniz Seviyesinden Yükseklik"
-    lambda: |-
-      return (  44330 * (1.0 - pow(id(hava_basinci).state / 1016.0, 0.1903) ) );
-    unit_of_measurement: "m"
-    accuracy_decimals: 0  
-    id: rakim
-    icon: mdi:altimeter
-    device_class: distance
-    # icon: mdi:home-thermometer-outline
-    web_server: 
-          web_server_id: webserver_kullanici
-          sorting_group_id: bilgiler_grup
-          sorting_weight: 32  
-
+     
   - platform: copy  
-    name: "Hissedilen Sıcaklık"
-    id: hissedilen
+    name: "Apparent temperature"
+    id: feels_like
     accuracy_decimals: 0
     device_class: temperature
     icon: mdi:thermometer-lines
-    source_id:  sicak
+    source_id:  temp
     filters:
-      - lambda:   return round(id(sicaklik_ort).state + ( ( (id(nem).state / 100) * 6.105 * 2.71828 *  ((17.27 * id(sicaklik_ort).state) / (237.7 + id(sicaklik_ort).state))  ) * 0.33 ) - 4  ); 
+      - lambda:   return round(id(temp).state + ( ( (id(hum).state / 100) * 6.105 * 2.71828 *  ((17.27 * id(temp).state) / (237.7 + id(temp).state))  ) * 0.33 ) - 4  ); 
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: bilgiler_grup
+        web_server_id: webserver_sort
+        sorting_group_id: info_group
         sorting_weight: 27    
 
   - platform: absolute_humidity
-    name: Mutlak Nem
-    id: mutlak_nem
-    temperature: sicak
+    name: "Absolute Humidity"
+    id: absolute_hum
+    temperature: temp
     device_class: absolute_humidity
     icon: mdi:water-opacity
-    humidity: nem
+    humidity: hum
     accuracy_decimals: 0
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: bilgiler_grup
+        web_server_id: webserver_sort
+        sorting_group_id: info_group
         sorting_weight: 29
         
-  - platform: dht # DHT11 BU
+  - platform: dht # DHT11 sensor
     pin: GPIO0
     model: DHT11
     id: dht_sensoru
     
     temperature:
-      id: sicak
+      id: temp
       internal: True
-      name: "Sıcaklık"
+      name: "Temperature"
       accuracy_decimals: 0
       icon: mdi:home-thermometer-outline
       web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: bilgiler_grup
+        web_server_id: webserver_sort
+        sorting_group_id: info_group
         sorting_weight: 26     
     
     humidity:
-      id: nem
-      name: "Nem"
+      id: hum
+      name: "Humudity"
       icon: mdi:water-percent
       web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: bilgiler_grup
+        web_server_id: webserver_sort
+        sorting_group_id: info_group
         sorting_weight: 28     
  
-  - platform: internal_temperature
-    name: "İşlemci Sıcaklık"
-    id: islemci_sicakligi
-    icon: mdi:thermometer
-    accuracy_decimals: 0
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: sistem_grup
-      sorting_weight: 10
 
-
-  - platform: wifi_signal  
-    name: "WiFi gücü"
-    id: wifi_gucu
-    filters:
-      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
-    unit_of_measurement: " %"
-    entity_category: diagnostic
-    device_class: signal_strength
-    icon: mdi:wifi
-    # update_interval:  60s
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: sistem_grup
-      sorting_weight: 20
-
-
-
-######### alttakiler mq135 için ########
-# https://github.com/AlexBelfegor/esphome-mq135/blob/main/isl_climatestatio.yaml
-
-  - platform: adc # MQ135 BU
+  - platform: adc # MQ135 sensor
     pin: GPIO4
     name: "Gas ADC"
     update_interval: 1s
     filters:
-      - multiply: 3.3 # for NodeMcu ESP8266 v3 Lua
+      - multiply: 3.3 # for ESP32 C6 Mini
     accuracy_decimals: 4
     unit_of_measurement: V
     id: sensor_volt
@@ -609,11 +249,11 @@ sensor:
     #getCorrectionFactor
     name: "Correction Factor"
     lambda: |-
-      if (id(sicak).state<20) {
-        return (id(CORA) * id(sicak).state * id(sicak).state - id(CORB) *
-          id(sicak).state + id(CORC) - (id(nem).state - 33.) * id(CORD));
+      if (id(temp).state<20) {
+        return (id(CORA) * id(temp).state * id(temp).state - id(CORB) *
+          id(temp).state + id(CORC) - (id(hum).state - 33.) * id(CORD));
       } else {
-        return (id(CORE) * id(sicak).state + id(CORF) * id(nem).state + id(CORG));
+        return (id(CORE) * id(temp).state + id(CORF) * id(hum).state + id(CORG));
       }
     update_interval: 10s
     accuracy_decimals: 6
@@ -636,7 +276,7 @@ sensor:
 
   - platform: template
     # Get the resistance of the sensor, ie. the measurement value correctedfor temp/hum @return The corrected sensor resistance kOhm
-    #getCorrectedResistance
+    # getCorrectedResistance
     name: "Corrected Resistance"
     lambda: |-
       return (id(resistance).state / id(correction_factor).state);
@@ -648,10 +288,10 @@ sensor:
 
   - platform: template
     # Get the ppm of CO2 sensed (assuming only CO2 in the air). The ppm of CO2 in the air
-    #getPPM
-    name: "PPM CO2 Okunan" 
+    # getPPM
+    name: "PPM CO2 reading" 
     id: ppm_co2
-    internal: False #debug
+    internal: False  
     lambda: |-
       if (id(regression_method)==1) {
         return (id(PARA) * pow((id(resistance).state / id(RZERO)), id(PARB)));
@@ -664,42 +304,27 @@ sensor:
 
     accuracy_decimals: 0
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: kritik_grup   
+        web_server_id: webserver_sort
+        sorting_group_id: critic_group   
         sorting_weight: 75
 
   - platform: template
     # Get the ppm of CO2 sensed (assuming only CO2 in the air), corrected  for temp. The ppm of CO2 in the air
-    #getCorrectedPPM
+    # getCorrectedPPM
 
-    # burada açıklıyor
     # https://www.co2meter.com/blogs/news/co2-ppm
-    # kısaca 
+    # summary 
     # 
     # Carbon Dioxide (CO2) 
-
     #       250-400 ppm 	Normal background concentration in outdoor ambient air
-    #                     Dış ortam havasındaki normal arka plan havası, dağ ve deniz havası gibi kaliteli
-
     #     400-1,000 ppm   Concentrations typical of occupied indoor spaces with good air exchange
-    #                     İyi hava değişimi olan içinde canlı bulunan iç mekanlara özgü hava kalitesi
-
     #   1,000-1,500 ppm   Complaints of drowsiness and poor air.
-    #                     Havasız oda, kötü havalandrması olan içinde canlı bulunan iç mekanlaradeki hava kalitesizliği
-
     #   1,500-2,000 ppm 	Complaints of drowsiness and poor air.
-    #                     Çok havasız oda, Uyuşukluk ve kötü hava şikayetleri oluşabilir.
-
     #   2,000-5,000 ppm  	Headaches, sleepiness and stagnant, stale, stuffy air. Poor concentration, loss of attention, increased heart rate and slight nausea may also be present.
-    #                     Baş ağrısı, uyku hali, durgun, bayat ve havasız hava. Konsantrasyon zayıflığı, dikkat eksikliği, kalp atış hızında artış ve hafif mide bulantısı da görülebilir.
-
     #         5,000 ppm 	Workplace exposure limit (as 8-hour TWA) in most jurisdictions.
-    #                     Bu ortamda çoğu işyerinde günde en fazla 8 saat canlı bulunmaldır.
-    
     #       >40,000 ppm 	Exposure may lead to serious oxygen deprivation resulting in permanent brain damage, coma, even death.
-    #                     Maruz kalınması ciddi oksijen yoksunluğuna, kalıcı beyin hasarına, komaya ve hatta ölüme yol açabilir.
 
-    name: "CO₂ Seviyesi"
+    name: "CO₂ level"
     lambda: |-
       if (id(regression_method)==1) {
         return (id(PARA) * pow((id(corrected_resistance).state / id(RZERO)), id(PARB)));
@@ -712,238 +337,20 @@ sensor:
     accuracy_decimals: 0
     icon: mdi:molecule-co2
     web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: bilgiler_grup
+      web_server_id: webserver_sort
+      sorting_group_id: info_group
       sorting_weight: 34 
     filters:
-      - skip_initial: 30 # ilk 30 datatyı göndermez, sensör ısınmas için falan
-      # - clamp:
-      #     min_value: 10.0 # max min valu dışı dikkate alınmaz
-      #     max_value: 40000.0
-      #     ignore_out_of_range: true
-      - delta: 0.1% # sadece %1 lik değşimde data gönderir
+      - skip_initial: 30  
+      - delta: 0.1%  
       - sliding_window_moving_average:
-          window_size: 30 # 60 verileik setin, 15 de bir data gönderir, ilk datayı 10. da gönderir
+          window_size: 30  
           send_every: 5
-          # send_first_at: 10
 
-
-    on_value:
-      - if:
-          condition:
-             lambda: 'return id(corrected_ppm_co2).state <= 10;'
-          then:
-                  - if:
-                      condition:
-                          switch.is_on: isikli_alarm
-                      then:  
-                        - text_sensor.template.publish:
-                            id: co2_aciklama
-                            state: "Sensör arızası"
-                        - light.turn_off: status_led_renkli  
-                        - light.turn_on: led_status_light                        
-
-      - if:
-          all:
-            - lambda: 'return id(corrected_ppm_co2).state >= 10;'
-            - lambda: 'return id(corrected_ppm_co2).state < 1000;'
-          then:
-                  - if:
-                      condition:
-                          switch.is_on: isikli_alarm
-                      then:  
-                        - light.turn_off: led_status_light
-                        - light.turn_on:
-                            id: status_led_renkli
-                            brightness: 100%
-                            red: 100% # yeşil
-                            green: 0% # krmızı
-                            blue: 0% # mavi
-                            effect: none
-                        - text_sensor.template.publish:
-                            id: co2_aciklama
-                            state: "Havadar Ortam"
-                        
-                      else:
-                        - light.turn_off: status_led_renkli  
-                        - light.turn_on: led_status_light
-      - if:
-          all:
-            - lambda: 'return id(corrected_ppm_co2).state >= 1000;'
-            - lambda: 'return id(corrected_ppm_co2).state < 1200;'
-          then:   
-              - if:
-                  condition:
-                      switch.is_on: isikli_alarm
-                  then:  
-                    - light.turn_off: led_status_light
-                    - light.turn_on:
-                        id: status_led_renkli
-                        brightness: 60%
-                        red: 100% # yeşil
-                        green: 10% #krmızı
-                        blue: 0%    # mavi
-                        effect: "SlowPulse"
-                    - text_sensor.template.publish:
-                        id: co2_aciklama
-                        state: "Az Havasız Ortam"
-
-                  else:
-                    - light.turn_off: status_led_renkli  
-                    - light.turn_on: led_status_light  
-
-      - if:
-          all:
-            - lambda: 'return id(corrected_ppm_co2).state >= 1200;'
-            - lambda: 'return id(corrected_ppm_co2).state < 1500;'
-          then:   
-              - if:
-                  condition:
-                      switch.is_on: isikli_alarm
-                  then:  
-                    - light.turn_off: led_status_light
-                    - light.turn_on:
-                        id: status_led_renkli
-                        brightness: 100%
-                        red: 60% # yeşil
-                        green: 100% #krmızı
-                        blue: 0%    # mavi
-                        effect: none
-                    - text_sensor.template.publish:
-                        id: co2_aciklama
-                        state: "Havasız Ortam"
-
-                  else:
-                    - light.turn_off: status_led_renkli  
-                    - light.turn_on: led_status_light  
-              - if:
-                  condition:
-                      switch.is_on: buzzer_function #SESKODU
-                  then:  
-                        # - output.turn_on: buzzer     
-                        - rtttl.play: 'bipbip:d=1,o=4,b=63:128p,64g5'   
- 
- 
- 
-
-      - if:
-          all:
-            - lambda: 'return id(corrected_ppm_co2).state >= 1500;'
-            - lambda: 'return id(corrected_ppm_co2).state < 2000;'
-          then:   
-            - if:
-                condition:
-                    switch.is_on: isikli_alarm
-                then:  
-                  - light.turn_off: led_status_light
-                  - light.turn_on:
-                      id: status_led_renkli
-                      brightness: 100%
-                      red: 60% # yeşil
-                      green: 100% #krmızı
-                      blue: 0%    # mavi
-                      effect: "SlowPulse"
-                  - text_sensor.template.publish:
-                      id: co2_aciklama
-                      state: "Çok Havasız Ortam"
-
-                else:
-                  - light.turn_off: status_led_renkli  
-                  - light.turn_on: led_status_light
-
-            - if:
-                  condition:
-                      switch.is_on: buzzer_function #SESKODU
-                  then:  
-                        # - output.turn_on: buzzer     
-                         - rtttl.play: 'bipbip:d=1,o=4,b=63:128p,64g5,128p,64g5'  
- 
-
-
-      - if:
-          all:
-            - lambda: 'return id(corrected_ppm_co2).state >= 2000;'
-            - lambda: 'return id(corrected_ppm_co2).state < 7000;'
-          then:
-            - if:
-                condition:
-                    switch.is_on: isikli_alarm
-                then:
-                  - light.turn_off: led_status_light
-                  - light.turn_on:
-                      id: status_led_renkli
-                      brightness: 100%
-                      red: 0% # yeşil
-                      green: 100% #krmızı
-                      blue: 0% # mavi
-                      effect: "FastPulse"  
-                  - text_sensor.template.publish:
-                        id: co2_aciklama
-                        state: "Çok Riskli Havasız Ortam"
-                else:
-                  - light.turn_off: status_led_renkli  
-                  - light.turn_on: led_status_light 
- 
-            - if:
-                  condition:
-                      switch.is_on: buzzer_function #SESKODU
-                  then:  
-                        # - output.turn_on: buzzer     
-                         - rtttl.play: 'bipbip:d=1,o=4,b=63:128p,64g5,128p,64g5,128p,64g5'                                                                     
-
-
-      - if:
-          condition:
-            lambda: 'return id(corrected_ppm_co2).state >= 7000;'
-          then:
-                  - if:
-                      condition:
-                         switch.is_on: isikli_alarm
-                      then:  
-                        - if:
-                            condition:
-                               lambda: 'return id(acilistan_gecen_sure_seconds).state >= 900;'
-                            then:
-                              - light.turn_off: led_status_light
-                              - light.turn_on:
-                                  id: status_led_renkli
-                                  brightness: 100%
-                                  red: 0% # yeşil
-                                  green: 100% #krmızı
-                                  blue: 0% # mavi
-                                  effect: "FastPulse"  
-                              - text_sensor.template.publish:
-                                    id: co2_aciklama
-                                    state: "Çok Riskli Havasız Ortam"
-
- 
-                              - if:
-                                    condition:
-                                       switch.is_on: buzzer_function #SESKODU
-                                    then:  
-                                      # - output.turn_on: buzzer     
-                                      - rtttl.play: 'bipbip:d=1,o=4,b=63:128p,64g5,128p,64g5,128p,64g5,128p,64g5'                                   
-
-
-                            else:
-                                - light.turn_off: led_status_light
-                                - light.turn_on:
-                                    id: status_led_renkli
-                                    brightness: 30%
-                                    red: 0% # yeşil
-                                    green: 10% #krmızı
-                                    blue: 10% # mavi
-                                    effect: "Acilis" 
-                                - text_sensor.template.publish:
-                                    id: co2_aciklama
-                                    state: "Sensör hazır değil bekleyiniz"
-                      else:
-                        - light.turn_off: status_led_renkli  
-                        - light.turn_on: led_status_light
 
   - platform: template
     # Get the resistance RZero of the sensor for calibration purposes. The sensor resistance RZero in kOhm
-    #getRZero
+    # getRZero
     name: "RZero"
     internal: True
     lambda: |-
@@ -960,8 +367,8 @@ sensor:
 
   - platform: template
     # Get the corrected resistance RZero of the sensor for calibration purposes. The corrected sensor resistance RZERO in kOhm for ATMOCO2 level
-    #getCorrectedRZero
-    name: "RZERO Okunan"
+    # getCorrectedRZero
+    name: "RZERO reading"
     lambda: |-
       return (id(corrected_resistance).state / pow((id(ATMOCO2) / id(PARA)), (1./id(PARB))));
     filters:
@@ -970,260 +377,44 @@ sensor:
           send_every: 1
     icon: mdi:resistor
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: kritik_grup   
+        web_server_id: webserver_sort
+        sorting_group_id: critic_group   
         sorting_weight: 73 
     update_interval: 5s
     accuracy_decimals: 3
     unit_of_measurement: kOm
     id: corrected_r_zero
-    internal: False #DEBUG #KALİBRE burada internal false yap aleti pencere dışına koy, çalışsn 1-2 saat
-                    # sonra ekrandan bu değere bak , bakılacak değerler PPM CO2 id(ppm_co2) ve CorrectedRZero id(corrected_r_zero) 
-                    # ekrandaki CorrectedRZero yu parametre olan RZERO değerine yaz bunu test etmek için
-                    # ekran PPM CO2 değeri 450 civarında olacaktır ki biz ATMOCO2 parametresi 450 yazdık, bu dünya ortalaması
-                    # yani yeni değeri yazınca dalet dışarıdayken 450 civarında olacaktır PPM CO2 değeri (ekrandaki)
-                    # özetle yaplan iş 450 yi bulacak değeri hesaplamak için   CorrectedRZero değerini temiz havada ölçüyoruz
-                    # gelen değer 6.25 ise onu RZERO ya yazıyoruz, böylece dış ortam ppm 450 oluyor, sonra bunu ve 
-                    # CorrectedRZero ve PPM CO2 yi ekranda göstermemek için    internal: True yapyoruz,
-                    # bize lazım olan data CO₂ Seviyesi yani id(corrected_ppm_co2) olacak tüm hesaplamalar alarmları falan ona bağla 
-                    # TEKRAR ÖZET, TEK YAPILACK İŞ
-                    # ekrandaki CorrectedRZero değerini globals: altındaki - id: RZERO initial_value ye yazmak 
-                    # açıklamalar için
+    internal: False 
                     # https://github.com/Bobbo117/MQ135-Air-Quality-Sensor
                     # https://www.reddit.com/r/arduino/comments/1b5xp9t/seeking_help_to_calibrate_the_mq135_module/
                     # https://www.google.com/search?q=how+to+calibrate+mq+135
                      
-
 
 binary_sensor:
 
 
 text_sensor:
   - platform: template
-    name: 'RZERO Fabrika Ayarı'
-    id: 'rzero_degeri'
+    name: 'RZERO Default'
+    id: 'rzero_value'
     lambda: |-
       return {to_string(id(RZERO))};
     update_interval: 10s
     icon: mdi:resistor
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: kritik_grup   
+        web_server_id: webserver_sort
+        sorting_group_id: critic_group   
         sorting_weight: 72 
 
 
   - platform: template
-    name: 'PPM CO2 Fabrika Ayarı'
-    id: 'atm0co2_degeri'
+    name: 'PPM CO2 Default'
+    id: 'atm0co2_value'
     lambda: |-
       return {to_string(id(ATMOCO2))};
     update_interval: 10s
     icon: mdi:molecule-co2
     web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: kritik_grup   
+        web_server_id: webserver_sort
+        sorting_group_id: critic_group   
         sorting_weight: 74
-
-
-  - platform: template
-    name: "Hava Kalitesi"
-    id: co2_aciklama
-    icon: mdi:home-heart
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: bilgiler_grup
-      sorting_weight: 35 
-
-  - platform: template
-    name: "Ürün sürümü"
-    id: esphome_project_version_text_short
-    icon: mdi:information-variant-circle-outline
-    entity_category: diagnostic
-    lambda: |-
-      return { ESPHOME_PROJECT_VERSION };
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: urun_grup
-      sorting_weight: 6
- 
-  - platform: template
-    name: "Ürün ismi"
-    id: esphome_project_name
-    icon: mdi:information-variant-circle-outline
-    entity_category: diagnostic
-    lambda: |-
-      return { ESPHOME_PROJECT_NAME };
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: urun_grup
-      sorting_weight: 5 
-  - platform: uptime
-    name: "Çalışma süresi"
-    entity_category: diagnostic
-    format:
-      separator: " "
-      days: " gün"
-      hours: " saat"
-      minutes: " dakika"
-      seconds: " saniye"
-      expand: False
-    icon: mdi:clock-start
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: urun_grup
-      sorting_weight: 9
-
- 
-  - platform: template
-    name: "Ürün HomeAssistant & ESPHome Anahtarı"
-    id: esphome_project_key
-    icon: mdi:information-variant-circle-outline
-    entity_category: diagnostic
-    internal: True
-    lambda:  |-
-          return { id(makina_esp_anahtari) } ;
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: urun_grup
-      sorting_weight: 8
-
-    
-  - platform: template  
-    name: "Ürün web arabirimi"  
-    id: esphome_wifi_url
-    icon: mdi:information-variant-circle-outline
-    entity_category: diagnostic
-    update_interval: 1hours
-    lambda: !lambda |-
-              std::string strArray[20] = { id( macid ).state};
-              std::string adres="http://" + id(makina_ismi) + "-" ;
-              std::string kod ="";
-              for ( std::string s : strArray ) {
-                  kod = kod + s.c_str();
-              }
-              std::string son3 = kod.substr(9,2);  
-              std::string son2 = kod.substr(12, 2);
-              std::string son1 = kod.substr(15, 2);
-              for (char &c : son1 ) {
-                      if (c >= 'A' && c <= 'Z') {
-                          c += 32;
-                      }
-                  }
-              for (char &c : son2 ) {
-                      if (c >= 'A' && c <= 'Z') {
-                          c += 32;
-                      }
-                  }
-              for (char &c : son3 ) {
-                      if (c >= 'A' && c <= 'Z') {
-                          c += 32;
-                      }
-                  }                  
-              ESP_LOGI("sistem", "Buraya ulaşmak için %s adresini de kullanabilirsiniz", (adres +  son3 + son2 + son1 + ".local/").c_str());
-              return {adres +  son3 + son2 + son1 + ".local/"};
-
-    web_server: 
-      web_server_id: webserver_kullanici
-      sorting_group_id: urun_grup
-      sorting_weight: 7
- 
-
-  - platform: wifi_info
-    ip_address:
-      entity_category: diagnostic
-      name: "WiFi IP"
-      icon: mdi:ip-network
-      web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: sistem_grup
-        sorting_weight: 25 
-    ssid:
-      name: "WiFi"
-      entity_category: diagnostic
-      icon: mdi:router-network-wireless
-      web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: sistem_grup
-        sorting_weight: 11
-    mac_address: 
-      entity_category: diagnostic
-      name: "WiFi MacID"
-      icon: mdi:ip-network
-      id: macid
-      internal: True
-      web_server: 
-        web_server_id: webserver_kullanici
-        sorting_group_id: sistem_grup
-        sorting_weight: 27 
-
-
-interval: 
-  - interval: 15min
-    then:      
-      if:  
-        condition:
-          - switch.is_on: isikli_alarm
-        then:
-           - if:
-              condition:
-                lambda: 'return id(corrected_ppm_co2).state <= 0;'
-              then:
-                   - logger.log:
-                            format: "CO₂ Sensörü arızalı görünüyor"
-                            level: WARN
-                            tag: "Bilgi"  
-
-           - if:
-              all:
-                - lambda: 'return id(corrected_ppm_co2).state > 0;'
-                - lambda: 'return id(corrected_ppm_co2).state < 1000;'
-              then:
-                   - logger.log:
-                            format: "CO₂ Seviyesi normal, İyi hava değişimi olan içindekiler için uygun hava kalitesi olan bir ortam ..."
-                            level: INFO
-                            tag: "Bilgi"  
-
- 
-                               
-           - if:
-              all:
-                - lambda: 'return id(corrected_ppm_co2).state >= 1000;'
-                - lambda: 'return id(corrected_ppm_co2).state < 1500;'
-              then:  
-                    - logger.log:
-                            format: "CO₂ Seviyesi yüksek, Havasız oda, kötü havalandrması olan bir ortam, içindekiler için hava kalitesiz."
-                            level: WARN
-                            tag: "Uyarı"
- 
-           - if:
-                all:
-                  - lambda: 'return id(corrected_ppm_co2).state >= 1500;'
-                  - lambda: 'return id(corrected_ppm_co2).state < 2000;'
-                then:  
-                      - logger.log:
-                            format: "CO₂ Seviyesi çok yüksek,  Çok havasız oda, Uyuşukluk ve kötü hava şikayetleri oluşabilir."
-                            level: ERROR
-                            tag: "Uyarı"
- 
-           - if:
-                all:
-                  - lambda: 'return id(corrected_ppm_co2).state >= 2000;'
-                  - lambda: 'return id(corrected_ppm_co2).state < 7000;'
-                then:
-                    - logger.log:
-                            format: "CO₂ Seviyesi kritik seviyede yüksek, Baş ağrısı, uyku hali, durgun, bayat ve kalitesiz hava. Konsantrasyon zayıflığı, dikkat eksikliği, kalp atış hızında artış ve hafif mide bulantısı da görülebilir."
-                            level: ERROR
-                            tag: "Uyarı"
-
-           - if:
-                condition:
-                    lambda: 'return id(corrected_ppm_co2).state >= 7000;'
-                then:
-                    - if:
-                            condition:
-                               lambda: 'return id(acilistan_gecen_sure_seconds).state < 900;'
-                            then:
-                              - logger.log:
-                                      format: "CO₂ Sensörü henüz hazır değil, bekleyiniz"
-                                      level: ERROR
-                                      tag: "Uyarı"                         
