@@ -19,13 +19,13 @@ DHT11 sensor supply voltage 3.3V , GPIO Pin GPIO0
 MQ135 sensörü ile hava kalitesi ölçümü, otomatik kalibrasyon özellikli <br/>
 
 1. YAML dosyasını indirin  ve derleyip esp32 makinanıza kurun, esp32'nin web sayfasını açın, <br/>
-2. Aleti odadan dşarıya, bahçeye veya açık havaya çkarın, 'RZERO Okunan' ve 'PPM CO2 Okunan' değerlerini, ev dışında açık havada 1-3 saat gözleyin<br/>
-3. Değerler artık neredeyse sabitlendiğinde 'Kalibre et' butonuna basın<br/>
-4. Ayarlama işlemi tamamdır, esp32'yi odansıza getirin değerlerin 1-2 dk sonra değiştiğini göreceksiniz, değerler dışardakinden yüksek olacaktır ki normal, yaml dosyasında CO₂ değerlerinin anlamı var, ona göre ne yapacağınıza karar verirsiniz, 1000 değeri altı tertemiz hava demek<br/>
+2. Aleti odadan dşarıya, bahçeye veya açık havaya çkarın, 'RZERO Okunan' ve 'PPM CO2 Okunan' değerlerini, ev dışında açık havada 1-2 saat gözleyin<br/>
+3. Değerler artık neredeyse sabitlendiğinde 'Kalibre et' butonuna basın.<br/>
+4. Ayarlama işlemi tamamdır, esp32'yi odanıza getirin değerlerin 1-2 dk sonra değiştiğini göreceksiniz, değerler dışardakinden yüksek olacaktır ki normal, yaml dosyasında CO₂ değerlerinin anlamı var, ona göre ne yapacağınıza karar verirsiniz, 1000 değeri altı tertemiz hava demek.<br/>
 5. Ayarları sıfırlamak için 'Fakrika ayarlarına Dön' butonuna basabilirsiniz.<br/>
-6. Makina yeniden başladığnda, uykudan uyandığında, tekrar güç verildiğinde,  tekrar kalibre etmenize GEREK YOKTUR.
+6. Kalibrasyon değerleri kalıcıdır, Makina yeniden başladığnda, uykudan uyandığında, tekrar güç verildiğinde,  tekrar kalibre etmenize GEREK YOKTUR.<br/>
 7. Başka bir eve, semte, ya da şehir veya ülkeye giderseniz tekrar kalibre etmelisiniz.<br/>
-8. Sıcaklık ve nem için DHT11 sensörü kullanılmıştır. Başka sensörle kolayca değiştirebilirsiniz<br/>
+8. Sıcaklık ve nem için DHT11 sensörü kullanılmıştır. Başka sensörle kolayca değiştirebilirsiniz.<br/>
 
 MQ135 sensorü besleme voltajı 5V , GPIO Pin GPIO4
 DHT11 sensorü besleme voltajı 3.3V , GPIO Pin GPIO0
