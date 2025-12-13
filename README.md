@@ -18,8 +18,8 @@ MQ135 sensörü ile hava kalitesi ölçümü, otomatik kalibrasyon özellikli <b
 1. YAML dosyasını indirin  ve derleyip esp32 makianaıza kurun, esp32 nin web sayfasını açın, <br/>
 2. 'RZERO Okunan' ve  'PPM CO2 Okunan' değerlerini, ev dışında açık havada 1-3 saat gözleyin<br/>
 3. Değerler artık neredeyse sabitlendiğinde 'Kalibre et' butonuna basın<br/>
-4. Ayarlama işlemi tamamdır<br/>
+4. Ayarlama işlemi tamamdır, esp32 yi odansıza getirim değerlerin değiştiğini göreceksiniz, değerler dışardakinden yüksek olacaktır ki normal, yaml dosyasında değerlerin anlamı var, ona göre ne yapacağınıza karar verirsiniz, 1000 değeri altı tertemiz hava demek<br/>
 5. Ayarları sıfırlamak için 'Fakrika ayarlarına Dön' butonuna basabilirsiniz.<br/>
 6. Makina yeniden başladğnda tekrar kalibre etmenize GEREK YOKTUR.
-7. 7. Bşka bir eve, semte, ya da şehir veya ülkeye giderseniz tekrar kalibre etmelisiniz.<br/>
-8. Sıcaklık ve nem için DHT11sensörü kullanılmıştır.<br/>
+7. Başka bir eve, semte, ya da şehir veya ülkeye giderseniz tekrar kalibre etmelisiniz.<br/>
+8. Sıcaklık ve nem için DHT11 sensörü kullanılmıştır.<br/>
