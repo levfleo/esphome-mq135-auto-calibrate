@@ -53,13 +53,13 @@ globals:
   - id: RZERO
     type: float
     restore_value: no
-    initial_value: '3.12'   
+    initial_value: '5.56'   
 
 #Atmospheric CO2 level for calibration purposes. Outdoor CO2 level during calibration. Usually 450, but it's better to clarify.
   - id: ATMOCO2
     type: float
     restore_value: no
-    initial_value: '2620'   
+    initial_value: '90485'   
 
   - id: PARA
     type: float
@@ -127,7 +127,7 @@ button:
     on_press:   
       then:
          - lambda: |-
-            id(RZERO) = id(corrected_r_zero).state;
+            id(RZERO) = id(r_zero).state;
             id(ATMOCO2) = id(ppm_co2).state; 
     entity_category: config
     web_server: 
