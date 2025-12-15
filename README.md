@@ -10,6 +10,7 @@ Yaml code for MQ135 sensor with auto calibration function<br/>
 7. Calibration settings is persistent but only based for calibrated outside values. No need to re-calibrate on restart, re-power and awake from deepsleep.<br/>
 8. If you move another new apartment, city, country etc must re-calibrate.<br/> 
 9. DHT11 sensor for Humidity & Temperature. You can easly change different sensor type.<br/>
+10. YAML code in RZERO and ATMOCO2 values calibrated for istanbul/Turkey.<br/>
 
 ESP32 C6 used<br/>
 MQ135 sensor supply voltage 5V , GPIO Pin GPIO4<br/>
@@ -27,6 +28,7 @@ MQ135 sensörü ile hava kalitesi ölçümü, otomatik kalibrasyon özellikli <b
 6. Kalibrasyon değerleri kalıcıdır, Makina yeniden başladığnda, uykudan uyandığında, tekrar güç verildiğinde,  tekrar kalibre etmenize GEREK YOKTUR.<br/>
 7. Başka bir eve, semte, ya da şehir veya ülkeye giderseniz tekrar kalibre etmelisiniz.<br/>
 8. Sıcaklık ve nem için DHT11 sensörü kullanılmıştır. Başka sensörle kolayca değiştirebilirsiniz.<br/>
+9. YAML kodunun RZERO ve ATMOCO2 parametreleri, Anadolu Yakası, İstanbul için ayarlıdır, bilgilerinize.<br/>
 
 ESP32 C6 kullanılmıştır<br/>
 MQ135 sensorü besleme voltajı 5V , GPIO Pin GPIO4<br/>
